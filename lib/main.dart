@@ -23,7 +23,7 @@ class CardModel {
 
   CardModel({
     required this.frontAsset,
-    this.backAsset = 'assets/profile.jpeg',
+    this.backAsset = 'assets/card.jpg',
     this.isFaceUp = false,
     this.isMatched = false,
   });
@@ -64,10 +64,10 @@ class _GameScreenState extends State<GameScreen>
 
   void _initializeCards() {
     List<String> cardImages = [
-      'assets/christ.jpg',
-      'assets/great_wall_china.jpg',
-      'assets/pyramid.jpg',
-      'assets/taj_mahal.jpg',
+      'assets/apple.jpg',
+      'assets/banana.jpg',
+      'assets/mango.jpg',
+      'assets/orange.jpg',
     ];
 
     cardImages = [...cardImages, ...cardImages];
