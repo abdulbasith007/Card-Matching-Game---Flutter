@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:math';
 
 void main() => runApp(const MemoryGame());
 
@@ -34,9 +35,20 @@ class GameScreen extends StatefulWidget {
   _GameScreenState createState() => _GameScreenState();
 }
 
-class _GameScreenState extends State<GameScreen> {
+class _GameScreenState extends State<GameScreen>
+    with SingleTickerProviderStateMixin {
   final int gridSize = 4;
   final List<CardModel> _cards = [];
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,12 +67,27 @@ class _GameScreenState extends State<GameScreen> {
         itemBuilder: (context, index) {
           return GestureDetector(
             onTap: () {},
-            child: Container(
-              color: Colors.blue,
+            child: AnimatedBuilder(
+              animation: _controller,
+              builder: (context, child) {
+                return Transform(
+                  transform: Matrix4.rotationY(_controller.value * pi),
+                  alignment: Alignment.center,
+                  child: Container(
+                    color: Colors.blue,
+                  ),
+                );
+              },
             ),
           );
         },
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 }
