@@ -13,6 +13,20 @@ class MemoryGame extends StatelessWidget {
   }
 }
 
+class CardModel {
+  final String frontAsset;
+  final String backAsset;
+  bool isFaceUp;
+  bool isMatched;
+
+  CardModel({
+    required this.frontAsset,
+    this.backAsset = 'assets/profile.jpeg',
+    this.isFaceUp = false,
+    this.isMatched = false,
+  });
+}
+
 class GameScreen extends StatefulWidget {
   const GameScreen({super.key});
 
@@ -22,6 +36,7 @@ class GameScreen extends StatefulWidget {
 
 class _GameScreenState extends State<GameScreen> {
   final int gridSize = 4;
+  final List<CardModel> _cards = [];
 
   @override
   Widget build(BuildContext context) {
@@ -38,8 +53,11 @@ class _GameScreenState extends State<GameScreen> {
         ),
         itemCount: gridSize * gridSize,
         itemBuilder: (context, index) {
-          return Container(
-            color: Colors.blue,
+          return GestureDetector(
+            onTap: () {},
+            child: Container(
+              color: Colors.blue,
+            ),
           );
         },
       ),
