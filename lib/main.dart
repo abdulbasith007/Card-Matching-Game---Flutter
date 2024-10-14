@@ -38,7 +38,6 @@ class GameScreen extends StatefulWidget {
   const GameScreen({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _GameScreenState createState() => _GameScreenState();
 }
 
@@ -50,7 +49,10 @@ class _GameScreenState extends State<GameScreen>
   CardModel? _secondCard;
   bool _isChecking = false;
   bool _isGameComplete = false;
-  int _attempts = 0; // Counter for number of attempts
+  int _attempts = 0;
+  int _score = 0;
+  late Timer _timer;
+  int _elapsedSeconds = 0;
   late AnimationController _controller;
 
   @override
@@ -61,6 +63,7 @@ class _GameScreenState extends State<GameScreen>
       vsync: this,
     );
     _initializeCards();
+    _startTimer();
   }
 
   void _initializeCards() {
@@ -88,13 +91,21 @@ class _GameScreenState extends State<GameScreen>
       _secondCard = null;
       _isChecking = false;
       _isGameComplete = false;
-      _attempts = 0; // Reset the counter
-
+      _attempts = 0;
+      _score = 0;
+      _elapsedSeconds = 0;
       for (int i = 0; i < _cards.length; i++) {
         _cards[i].resetCards();
       }
-
       _cards.shuffle(Random());
+    });
+  }
+
+  void _startTimer() {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
+        _elapsedSeconds++;
+      });
     });
   }
 
@@ -109,7 +120,7 @@ class _GameScreenState extends State<GameScreen>
         _firstCard = _cards[index];
       } else if (_secondCard == null) {
         _secondCard = _cards[index];
-        _attempts++; 
+        _attempts++;
         _checkMatch();
       }
     });
@@ -121,6 +132,7 @@ class _GameScreenState extends State<GameScreen>
       setState(() {
         _firstCard!.isMatched = true;
         _secondCard!.isMatched = true;
+        _score += 5;
         _firstCard = null;
         _secondCard = null;
         _isChecking = false;
@@ -130,6 +142,7 @@ class _GameScreenState extends State<GameScreen>
         }
       });
     } else {
+      _score -= 1;
       Future.delayed(const Duration(seconds: 1), () {
         setState(() {
           _firstCard!.isFaceUp = false;
@@ -144,17 +157,20 @@ class _GameScreenState extends State<GameScreen>
 
   void _completeGame() {
     _isGameComplete = true;
+    _timer.cancel();
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text("Congratulations!"),
-        content: Text("You completed the game in $_attempts attempts!"),
+        content: Text(
+            "You completed the game in $_attempts attempts and scored $_score points! Time taken: $_elapsedSeconds seconds."),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
               _resetGame();
+              _startTimer();
             },
             child: const Text('OK'),
           ),
@@ -171,7 +187,10 @@ class _GameScreenState extends State<GameScreen>
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: _resetGame,
+            onPressed: () {
+              _resetGame();
+              _startTimer();
+            },
           ),
         ],
         backgroundColor: Colors.red,
@@ -182,9 +201,13 @@ class _GameScreenState extends State<GameScreen>
           children: [
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text(
-                'Attempts: $_attempts',
-                style: const TextStyle(fontSize: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Attempts: $_attempts', style: const TextStyle(fontSize: 20)),
+                  Text('Score: $_score', style: const TextStyle(fontSize: 20)),
+                  Text('Time: $_elapsedSeconds sec', style: const TextStyle(fontSize: 20)),
+                ],
               ),
             ),
             Expanded(
@@ -231,6 +254,7 @@ class _GameScreenState extends State<GameScreen>
   @override
   void dispose() {
     _controller.dispose();
+    _timer.cancel();
     super.dispose();
   }
 }
