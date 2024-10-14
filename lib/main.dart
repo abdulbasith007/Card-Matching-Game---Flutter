@@ -50,6 +50,7 @@ class _GameScreenState extends State<GameScreen>
   CardModel? _secondCard;
   bool _isChecking = false;
   bool _isGameComplete = false;
+  int _attempts = 0; // Counter for number of attempts
   late AnimationController _controller;
 
   @override
@@ -87,6 +88,7 @@ class _GameScreenState extends State<GameScreen>
       _secondCard = null;
       _isChecking = false;
       _isGameComplete = false;
+      _attempts = 0; // Reset the counter
 
       for (int i = 0; i < _cards.length; i++) {
         _cards[i].resetCards();
@@ -107,6 +109,7 @@ class _GameScreenState extends State<GameScreen>
         _firstCard = _cards[index];
       } else if (_secondCard == null) {
         _secondCard = _cards[index];
+        _attempts++; 
         _checkMatch();
       }
     });
@@ -146,7 +149,7 @@ class _GameScreenState extends State<GameScreen>
       context: context,
       builder: (context) => AlertDialog(
         title: const Text("Congratulations!"),
-        content: const Text("You completed the game!"),
+        content: Text("You completed the game in $_attempts attempts!"),
         actions: [
           TextButton(
             onPressed: () {
@@ -164,7 +167,7 @@ class _GameScreenState extends State<GameScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Memory Game'),
+        title: const Text('Memory Game - Flutter'),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -174,38 +177,52 @@ class _GameScreenState extends State<GameScreen>
         backgroundColor: Colors.red,
       ),
       body: Container(
-        color: Colors.red,
-        child: GridView.builder(
-          padding: const EdgeInsets.all(8.0),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: gridSize,
-            crossAxisSpacing: 10,
-            mainAxisSpacing: 10,
-          ),
-          itemCount: _cards.length,
-          itemBuilder: (context, index) {
-            return GestureDetector(
-              onTap: () => _onCardTap(index),
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 500),
-                transitionBuilder: (Widget child, Animation<double> animation) {
-                  return RotationYTransition(
-                    turns: animation,
-                    child: child,
+        color: Colors.white,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                'Attempts: $_attempts',
+                style: const TextStyle(fontSize: 20),
+              ),
+            ),
+            Expanded(
+              child: GridView.builder(
+                padding: const EdgeInsets.all(8.0),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: gridSize,
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
+                ),
+                itemCount: _cards.length,
+                itemBuilder: (context, index) {
+                  return GestureDetector(
+                    onTap: () => _onCardTap(index),
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 500),
+                      transitionBuilder:
+                          (Widget child, Animation<double> animation) {
+                        return RotationYTransition(
+                          turns: animation,
+                          child: child,
+                        );
+                      },
+                      child: SizedBox(
+                        width: 80,
+                        height: 80,
+                        child: _cards[index].isFaceUp || _cards[index].isMatched
+                            ? Image.asset(_cards[index].frontAsset,
+                                key: ValueKey(_cards[index].frontAsset))
+                            : Image.asset(_cards[index].backAsset,
+                                key: const ValueKey('back')),
+                      ),
+                    ),
                   );
                 },
-                child: SizedBox(
-                  width: 80,
-                  height: 80,
-                  child: _cards[index].isFaceUp || _cards[index].isMatched
-                      ? Image.asset(_cards[index].frontAsset,
-                          key: ValueKey(_cards[index].frontAsset))
-                      : Image.asset(_cards[index].backAsset,
-                          key: const ValueKey('back')),
-                ),
               ),
-            );
-          },
+            ),
+          ],
         ),
       ),
     );
