@@ -72,6 +72,8 @@ class _GameScreenState extends State<GameScreen>
       'assets/banana.jpg',
       'assets/mango.jpg',
       'assets/orange.jpg',
+      'assets/grapes.jpg',
+      'assets/pineapple.jpg',
     ];
 
     cardImages = [...cardImages, ...cardImages];
